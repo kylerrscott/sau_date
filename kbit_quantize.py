@@ -26,3 +26,4 @@ def kbit_quantize(input):
 def ksign(input):
   output = tf.where(tf.math.greater_equal(input, 0), tf.ones_like(input), input)
   output = tf.where(tf.math.less(input, 0), tf.ones_like(input) * -1, output)
+  return output
