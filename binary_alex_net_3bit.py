@@ -7,6 +7,36 @@ from zookeeper import Field, factory
 from larq_zoo.core import utils
 from larq_zoo.core.model_factory import ModelFactory
 
+
+
+# Constrains to [-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1]
+def bit3_act_zero(input):
+  thresh0 = 0
+  thresh1 = 0.25
+  thresh2 = 0.5
+  thresh3 = 0.75
+  thresh4 = -0.25
+  thresh5 = -0.5
+  thresh6 = -0.75
+
+  thresh = [-0.875, -0.625, -0.375, -0.125, 0.125, 0.375, 0.625, 0.875]
+  quantizations = [-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1]
+  masks = []
+
+  masks.append(tf.math.less(input, thresh[0]))
+  for i in range(1, len(thresh)):
+    masks.append(tf.math.greater_equal(input, thresh[i-1]) & tf.math.less(input, thresh[i]))
+  masks.append(tf.math.greater_equal(input, thresh[len(thresh)-1]))
+
+  output = input
+  for i in range(0, len(masks)):
+    output = tf.where(masks[i], tf.ones_like(input) * quantizations[i], output)
+
+  return output
+
+
+
+# Constrains to [-1, -0.75, -0.5, -0.25, 0.25, 0.5, 0.75, 1]
 def bit3_act(input):
   thresh0 = 0
   thresh1 = 0.25
